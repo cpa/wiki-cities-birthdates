@@ -24,12 +24,14 @@
   <div class="h-screen flex flex-col">
     <div class="flex justify-between md:flex-col items-center p-2">
       <h1 class="font-bold text-2xl">Cities by their birthdate on Wikipedia</h1>
-      <div class="flex flex-col items-center md:flex-row-reverse">
+      <div class="flex flex-col items-center md:flex-row">
         <div>
           <button id="play-pause-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 md:my-2 px-4 rounded">
             Start&nbsp&nbsp⏵︎
           </button>
-          <button id="play-pause-button" onClick="goToFinalState()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 md:my-2 px-4 rounded">
+        </div>
+        <div class="md:mx-2">
+          <button id="play-pause-button" onClick="goToFinalState()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 mt-2 md:my-2 px-4 rounded">
             ⏵︎⏵︎
           </button>
         </div>
