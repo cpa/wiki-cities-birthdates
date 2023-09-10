@@ -15,7 +15,7 @@
   
   <title>Cities by their birthdate on Wikipedia</title>
   <link href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" rel="stylesheet"/>
-  <script src="https://unpkg.com/alpinejs"></script>		  
+  <script defer src="https://unpkg.com/alpinejs"></script>		  
   <script src="https://cdn.tailwindcss.com"></script>
   
 </head>
@@ -28,6 +28,9 @@
         <div>
           <button id="play-pause-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 md:my-2 px-4 rounded">
             Start&nbsp&nbsp⏵︎
+          </button>
+          <button id="play-pause-button" onClick="goToFinalState()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 md:my-2 px-4 rounded">
+            ⏵︎⏵︎
           </button>
         </div>
         <div class="py-2 md:px-4">
@@ -47,11 +50,13 @@
                   <h3 class="text-lg font-medium text-secondary-900">About</h3>
                   <div class="mt-2 text-sm text-secondary-500">
                     Only cities with 100 000+ inhabitants are displayed. Data was collected using Wikipedia API ; cross-checking with sources shown that the number of cities is ballpark right but no thorough check was done. It is pretty. It is also pretty meaningless.
-                    Details on the <a href="https://github.com/cpa/wiki-cities-birthdates" class="underline hover:no-underline">github repo</a>. Data was pasted directly in the HTML cuz I didn't want to bother with a dev server.<br>  
-                    made by <a href="https://charlespierre.fr" target="_blank">cpa</a> <a href="https://twitter.com/charlespierre" target="_blank">
-                      <svg style="display: inline;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-twitter"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
-                    </a>
-              
+                    Details on the <a href="https://github.com/cpa/wiki-cities-birthdates" class="underline hover:no-underline">github repo</a>. You won't get all the scripts cuz I stupidly git reset --hard'd them. Data was pasted directly in the HTML as I didn't want to bother with a dev server and that's how I roll.<br>  
+                    <div class="mt-4">
+                      made by <a href="https://charlespierre.fr" target="_blank">cpa</a> <a href="https://twitter.com/charlespierre" target="_blank">
+                        <svg style="display: inline;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-twitter"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
+                      </a>
+                    </div>
+                    
                   </div>
                 </div>
                 <div class="flex justify-end gap-3 bg-secondary-50 px-6 py-3">
@@ -77,7 +82,7 @@
       <svg style="display: inline;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-twitter"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
     </a>
   </footer>
-
+  
   
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <script>
@@ -89,7 +94,7 @@
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
     }).addTo(map);
-        
+    
     var isPaused = true;
     
     function displayData(data, tickLength = 1000, index = 0) {
@@ -147,13 +152,35 @@
       }, delay);
     }
     
+    function goToFinalState() {
+      isPaused = true;
+      
+      for (idx in data) {
+        var event = data[idx];
+        // Add circle to the map
+        var coordinates = event.coordinates.slice(6, -1).split(' ').map(Number);
+        var tmp = coordinates[0];
+        coordinates[0] = coordinates[1];
+        coordinates[1] = tmp;
+        L.circle(coordinates, {
+          color: 'red',
+          fillColor: '#f03',
+          fillOpacity: 0.5,
+          stroke: false,
+          radius: 50000
+        }).addTo(map)
+        .bindPopup(`<a href=${event.wikiPage}>${event.cityLabel}</a>`);
+      }
+    }
+    
     // Handle play and pause button
     var playPauseButton = document.getElementById('play-pause-button');
+    let speed = 30 * 24 * 60 * 60 * 100000000;
     playPauseButton.addEventListener('click', function() {
       isPaused = !isPaused;
       playPauseButton.textContent = isPaused ? '⏵︎' : '⏸︎';
       if (!isPaused) {
-        displayData(data, 30 * 24 * 60 * 60 * 1);
+        displayData(data, speed);
       }
     });
     
